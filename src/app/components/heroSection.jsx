@@ -203,8 +203,9 @@ function PresaleWidget({ startDate, initialRaised = 0, goal = 50000 }) {
 
       {/* Buttons */}
       <div className="mt-6 flex flex-col sm:flex-row gap-3">
+        {/* Replaced alert() with a console log to avoid disrupting the UI. */}
         <button
-          onClick={() => alert("Replace this with wagmi & rainbowkit ConnectButton")}
+          onClick={() => console.log("Connect Wallet button clicked - This would connect to a wallet.")}
           className="flex-1 inline-flex items-center justify-center px-4 py-2 rounded-xl border border-white/20 text-sm font-semibold hover:bg-white/10 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-400"
         >
           Connect Wallet
