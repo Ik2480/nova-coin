@@ -1,145 +1,238 @@
-// components/layout/Header.jsx
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { IconMenu2, IconX } from "@tabler/icons-react";
+import { usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 
-const navLinks = [
-  { name: "Roadmap", href: "#roadmap" },
-  { name: "Tokenomics", href: "#tokenomics" },
-  { name: "FAQ", href: "#faq" },
-  { name: "Whitepaper", href: "/whitepaper.pdf" },
+// NOTE: This component assumes TailwindCSS is configured with a "dark" class on <html>
+// and that a global theme provider or next-themes is used elsewhere in the app.
+
+const NAV = [
+  { label: "Home", href: "/" },
+  { label: "Tokenomics", href: "/#tokenomics" },
+  { label: "Why NOVA", href: "/#why" },
+  { label: "Roadmap", href: "/#roadmap" },
+  { label: "Team", href: "/team" },
+  { label: "FAQ", href: "/#faq" },
 ];
 
 export default function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname?.() ?? "/";
+  const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const drawerRef = useRef(null);
+  const firstLinkRef = useRef(null);
 
-  const toggleMenu = () => setIsMenuOpen((prev) => !prev);
-
-  // Track scroll position
+  // Shadow on scroll for sticky navbar
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const menuVariants = {
-    hidden: { opacity: 0, x: "100%" },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: { duration: 0.35, ease: "easeOut" },
-    },
-  };
+  // Close on ESC and trap focus when open (basic)
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape") setOpen(false);
+      if (open && e.key === "Tab") {
+        // very small focus trap: when focus leaves last element send it back to firstLink
+        const focusable = drawerRef.current?.querySelectorAll("a, button");
+        if (!focusable || focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (document.activeElement === last && !e.shiftKey) {
+          e.preventDefault();
+          first.focus();
+        } else if (document.activeElement === first && e.shiftKey) {
+          e.preventDefault();
+          last.focus();
+        }
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
 
-  const navLinkVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: (i) => ({
-      opacity: 1,
-      y: 0,
-      transition: { delay: i * 0.1, duration: 0.3 },
-    }),
+  // Auto-focus first link when opening
+  useEffect(() => {
+    if (open) {
+      requestAnimationFrame(() => firstLinkRef.current?.focus());
+      document.body.style.overflow = "hidden"; // prevent background scroll while drawer open
+    } else {
+      document.body.style.overflow = "";
+    }
+  }, [open]);
+
+  // small helper to compute active state
+  const isActive = (href) => {
+    if (!href) return false;
+    // treat hash links as active only if pathname matches base
+    if (href.startsWith("/#") || href.startsWith("/#")) {
+      return pathname === "/" && window.location.hash === href.replace("/", "");
+    }
+    return pathname === href;
   };
 
   return (
     <header
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 
-        ${scrolled ? "bg-gray-950/90 backdrop-blur-md border-b border-gray-800 py-3" : "bg-gray-950/70 backdrop-blur-sm py-4 md:py-6"}
-      `}
+      className={`sticky top-0 z-50 backdrop-blur transition-shadow duration-200 ${
+        scrolled ? "shadow-sm" : ""
+      }`}
+      aria-label="Main navigation"
     >
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 flex justify-between items-center transition-all duration-300">
-        {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2 cursor-pointer">
-          <span className="text-xl md:text-2xl font-bold font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-[#00FFFF] to-[#FF00FF]">
-            GLITCH
-          </span>
-        </Link>
-
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center space-x-8">
-          {navLinks.map((link, i) => (
-            <Link
-              key={i}
-              href={link.href}
-              className="text-gray-400 hover:text-white transition-colors duration-200"
-            >
-              {link.name}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <div className="flex-shrink-0">
+            <Link href="/" className="flex items-center gap-3">
+              <span className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-gray-900 text-white dark:bg-white dark:text-gray-900 font-semibold">NT</span>
+              <span className="hidden sm:inline-block font-semibold text-lg tracking-wide">
+                Novetoken
+              </span>
             </Link>
-          ))}
-          <ConnectWalletButton />
-        </div>
+          </div>
 
-        {/* Mobile Menu Button */}
-        <div className="md:hidden flex items-center">
-          <button
-            onClick={toggleMenu}
-            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-            className="text-gray-400 focus:outline-none"
-          >
-            {isMenuOpen ? <IconX size={28} /> : <IconMenu2 size={28} />}
-          </button>
-        </div>
-      </nav>
-
-      {/* Mobile Menu Overlay */}
-      <AnimatePresence>
-        {isMenuOpen && (
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            variants={menuVariants}
-            className="fixed inset-0 bg-gray-950/95 backdrop-blur-sm flex flex-col items-center justify-center space-y-8 md:hidden"
-          >
-            {navLinks.map((link, i) => (
-              <motion.div
-                key={i}
-                custom={i}
-                variants={navLinkVariants}
-                initial="hidden"
-                animate="visible"
+          {/* Desktop nav */}
+          <nav className="hidden md:flex items-center gap-6" aria-label="Primary">
+            {NAV.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`relative px-2 py-1 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors ${
+                  isActive(item.href)
+                    ? "text-indigo-600 dark:text-indigo-400"
+                    : "text-gray-700 hover:text-gray-900 dark:text-gray-200 dark:hover:text-white"
+                }`}
               >
-                <Link
-                  href={link.href}
-                  className="text-3xl font-bold text-gray-200 hover:text-white transition-colors duration-200"
-                  onClick={toggleMenu}
-                >
-                  {link.name}
-                </Link>
-              </motion.div>
+                {item.label}
+                <span
+                  className={`absolute left-0 -bottom-1 h-0.5 rounded-full transition-all duration-200 ${
+                    isActive(item.href) ? "w-full bg-indigo-500" : "w-0 bg-indigo-400"
+                  }`}
+                  aria-hidden
+                />
+              </Link>
             ))}
+          </nav>
 
-            {/* Wallet button */}
-            <motion.div
-              custom={navLinks.length}
-              variants={navLinkVariants}
-              initial="hidden"
-              animate="visible"
+          {/* right controls: theme toggle placeholder + mobile menu button */}
+          <div className="flex items-center gap-3">
+            {/* Theme toggle placeholder - integrate with your theme provider */}
+            <div className="hidden sm:inline-flex">
+              <button
+                type="button"
+                aria-label="Toggle theme"
+                className="p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                // wire this to your theme provider
+                onClick={() => {
+                  // noop: leave for consumer to implement; this keeps component provider-agnostic
+                  const root = document.documentElement;
+                  root.classList.toggle("dark");
+                }}
+                title="Toggle theme"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m8.66-10.66l-.7.7M4.34 13.66l-.7.7M21 12h-1M4 12H3m15.66 4.66l-.7-.7M6.34 6.34l-.7-.7M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setOpen(true)}
+              aria-label="Open menu"
+              aria-expanded={open}
+              aria-controls="mobile-menu"
+              className="inline-flex items-center justify-center p-2 rounded-md md:hidden focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              <ConnectWalletButton large />
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Drawer */}
+      <AnimatePresence>
+        {open && (
+          <motion.aside
+            id="mobile-menu"
+            ref={drawerRef}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50"
+          >
+            {/* overlay */}
+            <motion.button
+              aria-hidden
+              onClick={() => setOpen(false)}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.45 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.18 }}
+              className="absolute inset-0 bg-black"
+            />
+
+            {/* drawer panel */}
+            <motion.div
+              role="dialog"
+              aria-modal="true"
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "tween", duration: 0.28 }}
+              className="absolute right-0 top-0 h-full w-full max-w-xs bg-white dark:bg-gray-900 shadow-xl p-6 flex flex-col"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <span className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-gray-900 text-white dark:bg-white dark:text-gray-900 font-semibold">NT</span>
+                  <span className="font-semibold">Novetoken</span>
+                </div>
+                <button
+                  onClick={() => setOpen(false)}
+                  aria-label="Close menu"
+                  className="p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <nav className="flex-1 flex flex-col gap-3" aria-label="Mobile primary">
+                {NAV.map((item, i) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    ref={i === 0 ? firstLinkRef : undefined}
+                    onClick={() => setOpen(false)}
+                    className={`block px-3 py-2 rounded-lg text-base font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors ${
+                      isActive(item.href)
+                        ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+                        : "text-gray-700 hover:bg-gray-50 dark:text-gray-200"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </nav>
+
+              <div className="mt-6">
+                <a
+                  href="#"
+                  className="w-full inline-flex items-center justify-center px-4 py-2 rounded-md bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  Connect Wallet
+                </a>
+              </div>
             </motion.div>
-          </motion.div>
+          </motion.aside>
         )}
       </AnimatePresence>
     </header>
-  );
-}
-
-/* ---------------------------
-   Reusable Connect Wallet Btn
----------------------------- */
-function ConnectWalletButton({ large = false }) {
-  return (
-    <button
-      className={`rounded-full font-bold shadow-lg bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black transition-transform duration-300 hover:scale-105
-        ${large ? "px-8 py-4 text-lg" : "px-5 py-2 text-sm"}`}
-    >
-      Connect Wallet
-    </button>
   );
 }

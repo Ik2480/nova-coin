@@ -1,119 +1,117 @@
-// components/sections/TokenomicsSection.jsx
 'use client';
-
+import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
-import SectionWrapper from './SectionWrapper';
 
-const allocationData = [
-  { name: 'Presale', value: 30, color: '#00FFFF' },
-  { name: 'Liquidity', value: 20, color: '#FF00FF' },
-  { name: 'Marketing', value: 15, color: '#FF8C00' },
-  { name: 'Team & Advisors', value: 15, color: '#8A2BE2' },
-  { name: 'Ecosystem & Development', value: 20, color: '#00FA9A' },
-];
+export default function TokenomicSection() {
+  const data = [
+    { label: "Team", value: 20, color: "#6366F1" },
+    { label: "Liquidity", value: 30, color: "#EC4899" },
+    { label: "Marketing", value: 10, color: "#FBBF24" },
+    { label: "Presale", value: 40, color: "#22D3EE" },
+  ];
 
-const totalTokens = 100_000_000_000; // 100B tokens
+  const total = useMemo(() => data.reduce((sum, d) => sum + d.value, 0), [data]);
+  const [hoveredIndex, setHoveredIndex] = useState(null);
 
-export default function TokenomicsSection() {
+  const arcs = useMemo(() => {
+    let cumulative = 0;
+    return data.map((d) => {
+      const startAngle = (cumulative / total) * 2 * Math.PI;
+      cumulative += d.value;
+      const endAngle = (cumulative / total) * 2 * Math.PI;
+
+      const x1 = Math.cos(startAngle - Math.PI / 2);
+      const y1 = Math.sin(startAngle - Math.PI / 2);
+      const x2 = Math.cos(endAngle - Math.PI / 2);
+      const y2 = Math.sin(endAngle - Math.PI / 2);
+
+      const largeArcFlag = endAngle - startAngle > Math.PI ? 1 : 0;
+
+      const path = `
+        M ${x1} ${y1}
+        A 1 1 0 ${largeArcFlag} 1 ${x2} ${y2}
+        L 0 0
+        Z
+      `;
+      return { ...d, path };
+    });
+  }, [data, total]);
+
   return (
-    <SectionWrapper id="tokenomics" variant="dark">
-      <div className="text-center mb-16">
-        <h2 className="text-3xl md:text-5xl font-bold font-orbitron leading-tight text-transparent bg-clip-text bg-gradient-to-r from-[#FF00FF] to-[#00FFFF]">
+    <section
+      id="tokenomics"
+      className="relative w-full py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-indigo-50 via-white to-pink-50 overflow-hidden"
+    >
+      {/* Floating gradient circles like Hero */}
+      <motion.div
+        animate={{ x: [0, 15, -15, 0], y: [0, -10, 10, 0] }}
+        transition={{ repeat: Infinity, duration: 25, ease: 'easeInOut' }}
+        className="absolute w-36 h-36 bg-indigo-400/20 rounded-full top-10 left-10 blur-3xl pointer-events-none"
+      />
+      <motion.div
+        animate={{ x: [0, -10, 10, 0], y: [0, 5, -5, 0] }}
+        transition={{ repeat: Infinity, duration: 30, ease: 'easeInOut' }}
+        className="absolute w-48 h-48 bg-pink-400/20 rounded-full bottom-20 right-0 blur-3xl pointer-events-none"
+      />
+
+      {/* ✅ MATCH HeroSection width */}
+      <div className="max-w-7xl mx-auto relative z-10">
+        <h2 className="text-3xl font-extrabold text-center mb-12 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-pink-500 to-pink-600">
           Tokenomics
         </h2>
-        <p className="mt-4 text-lg md:text-xl text-gray-400 max-w-2xl mx-auto">
-          A fair and transparent distribution model that ensures long-term sustainability and growth.
-        </p>
-      </div>
 
-      <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
-        {/* Left Column: Chart */}
-        <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, amount: 0.5 }}
-          transition={{ duration: 0.8 }}
-          className="w-full lg:w-1/2 flex justify-center relative"
-        >
-          <div className="w-full max-w-lg aspect-square">
-            <ResponsiveContainer>
-              <PieChart>
-                <Pie
-                  data={allocationData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={80}
-                  outerRadius={120}
-                  dataKey="value"
-                  animationDuration={1500}
-                >
-                  {allocationData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #4b5563' }}
-                  labelStyle={{ color: '#fff' }}
-                  itemStyle={{ color: '#fff' }}
+        <div className="flex flex-col md:flex-row items-center justify-center gap-8">
+          {/* Donut Chart */}
+          <div className="relative w-64 h-64 md:w-72 md:h-72">
+            <svg viewBox="-1 -1 2 2" className="w-full h-full rotate-[-90deg]">
+              {arcs.map((arc, i) => (
+                <path
+                  key={arc.label}
+                  d={arc.path}
+                  fill={arc.color}
+                  onMouseEnter={() => setHoveredIndex(i)}
+                  onMouseLeave={() => setHoveredIndex(null)}
+                  className={`transition-all duration-300 ${
+                    hoveredIndex === i
+                      ? 'scale-105 filter drop-shadow-[0_0_12px] drop-shadow-[color:var(--tw-shadow-color)]'
+                      : ''
+                  }`}
+                  style={{ '--tw-shadow-color': arc.color }}
                 />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className="text-gray-400 text-sm">Total Supply</span>
-              <span className="text-white text-3xl md:text-4xl font-bold mt-1">
-                {totalTokens.toLocaleString()}
-              </span>
-            </div>
+              ))}
+              <circle cx="0" cy="0" r="0.5" fill="currentColor" className="text-white" />
+            </svg>
+
+            {/* Tooltip */}
+            {hoveredIndex !== null && (
+              <div className="absolute -translate-x-1/2 -translate-y-full left-1/2 top-1/2 bg-white/20 backdrop-blur-lg text-gray-900 text-xs px-2 py-1 rounded-lg shadow-lg pointer-events-none">
+                {data[hoveredIndex].label}: {data[hoveredIndex].value} (
+                {((data[hoveredIndex].value / total) * 100).toFixed(1)}%)
+              </div>
+            )}
           </div>
-        </motion.div>
 
-        {/* Right Column: Allocation List */}
-        <motion.div
-          initial={{ opacity: 0, x: 50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, amount: 0.5 }}
-          transition={{ duration: 0.8 }}
-          className="w-full lg:w-1/2 flex flex-col space-y-8"
-        >
-          <ul className="space-y-4">
-            {allocationData.map((item, index) => (
-              <li key={index} className="flex items-center space-x-4 p-4 rounded-lg bg-gray-900 border border-gray-800">
-                <div
-                  className="w-4 h-4 rounded-full"
-                  style={{ backgroundColor: item.color }}
-                />
-                <div className="flex-1">
-                  <span className="text-lg font-semibold text-gray-200">{item.name}</span>
+          {/* Legend */}
+          <div className="flex flex-col gap-3 w-full max-w-xs">
+            {data.map((d, i) => (
+              <div
+                key={d.label}
+                className="flex items-center justify-between cursor-pointer p-2 rounded-xl bg-white/10 backdrop-blur border border-white/20 hover:scale-105 transition-transform duration-200"
+                onMouseEnter={() => setHoveredIndex(i)}
+                onMouseLeave={() => setHoveredIndex(null)}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="w-4 h-4 rounded-full" style={{ backgroundColor: d.color }}></span>
+                  <span className="text-sm font-medium text-gray-800">{d.label}</span>
                 </div>
-                <div className="flex-shrink-0 text-right">
-                  <span className="text-white text-lg font-bold">{item.value}%</span>
-                  <p className="text-gray-400 text-sm">
-                    {(totalTokens * (item.value / 100)).toLocaleString()} Tokens
-                  </p>
-                </div>
-              </li>
+                <span className="text-sm font-semibold text-gray-900">
+                  {((d.value / total) * 100).toFixed(1)}%
+                </span>
+              </div>
             ))}
-          </ul>
-
-          {/* Key Metrics */}
-          <div className="mt-8 border-t border-gray-800 pt-8">
-            <h3 className="text-xl font-bold font-inter mb-4 text-gray-200">Key Metrics</h3>
-            <div className="space-y-2 text-gray-400">
-              <p>
-                <span className="font-semibold text-gray-300">Token Symbol:</span> $GLITCH
-              </p>
-              <p>
-                <span className="font-semibold text-gray-300">Blockchain:</span> Ethereum (ERC-20)
-              </p>
-              <p>
-                <span className="font-semibold text-gray-300">Contract:</span> 0x123...abc
-                <span className="ml-2 text-blue-400 cursor-pointer">(Click to copy)</span>
-              </p>
-            </div>
           </div>
-        </motion.div>
+        </div>
       </div>
-    </SectionWrapper>
+    </section>
   );
 }

@@ -12,9 +12,8 @@ export default function SectionWrapper({
 
   const variantClasses = {
     default: "bg-transparent text-white",
-    dark: "bg-gray-950 text-white",
     light: "bg-gray-100 text-gray-900",
-    gradient: "bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white",
+    gradient: "bg-gradient-to-br from-indigo-50 via-white to-pink-50",
   };
 
   return (
