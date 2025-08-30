@@ -5,9 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
-// NOTE: This component assumes TailwindCSS is configured with a "dark" class on <html>
-// and that a global theme provider or next-themes is used elsewhere in the app.
-
 const NAV = [
   { label: "Home", href: "/" },
   { label: "Tokenomics", href: "/#tokenomics" },
@@ -37,7 +34,6 @@ export default function Header() {
     const onKey = (e) => {
       if (e.key === "Escape") setOpen(false);
       if (open && e.key === "Tab") {
-        // very small focus trap: when focus leaves last element send it back to firstLink
         const focusable = drawerRef.current?.querySelectorAll("a, button");
         if (!focusable || focusable.length === 0) return;
         const first = focusable[0];
@@ -59,19 +55,15 @@ export default function Header() {
   useEffect(() => {
     if (open) {
       requestAnimationFrame(() => firstLinkRef.current?.focus());
-      document.body.style.overflow = "hidden"; // prevent background scroll while drawer open
+      document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
     }
   }, [open]);
 
-  // small helper to compute active state
+  // simplified: only compares pathname
   const isActive = (href) => {
     if (!href) return false;
-    // treat hash links as active only if pathname matches base
-    if (href.startsWith("/#") || href.startsWith("/#")) {
-      return pathname === "/" && window.location.hash === href.replace("/", "");
-    }
     return pathname === href;
   };
 
@@ -117,17 +109,14 @@ export default function Header() {
             ))}
           </nav>
 
-          {/* right controls: theme toggle placeholder + mobile menu button */}
+          {/* right controls */}
           <div className="flex items-center gap-3">
-            {/* Theme toggle placeholder - integrate with your theme provider */}
             <div className="hidden sm:inline-flex">
               <button
                 type="button"
                 aria-label="Toggle theme"
                 className="p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                // wire this to your theme provider
                 onClick={() => {
-                  // noop: leave for consumer to implement; this keeps component provider-agnostic
                   const root = document.documentElement;
                   root.classList.toggle("dark");
                 }}
@@ -166,7 +155,6 @@ export default function Header() {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50"
           >
-            {/* overlay */}
             <motion.button
               aria-hidden
               onClick={() => setOpen(false)}
@@ -176,8 +164,6 @@ export default function Header() {
               transition={{ duration: 0.18 }}
               className="absolute inset-0 bg-black"
             />
-
-            {/* drawer panel */}
             <motion.div
               role="dialog"
               aria-modal="true"
@@ -202,7 +188,6 @@ export default function Header() {
                   </svg>
                 </button>
               </div>
-
               <nav className="flex-1 flex flex-col gap-3" aria-label="Mobile primary">
                 {NAV.map((item, i) => (
                   <Link
@@ -220,7 +205,6 @@ export default function Header() {
                   </Link>
                 ))}
               </nav>
-
               <div className="mt-6">
                 <a
                   href="#"
