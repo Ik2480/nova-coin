@@ -28,9 +28,9 @@ export default function Hero({
 
       {/* New container for content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-stretch">
           {/* Left: Branding & copy */}
-          <div className="md:col-span-7 order-2 md:order-1">
+          <div className="md:col-span-7 order-2 md:order-1 flex flex-col justify-end">
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
@@ -73,10 +73,20 @@ export default function Hero({
             </motion.div>
           </div>
 
-          {/* Right: Widget + stat boxes above */}
+          {/* Right: Widget + stat boxes */}
           <div className="md:col-span-5 order-1 md:order-2 flex flex-col items-center w-full">
-            {/* Stat Boxes in normal flow (no overlap) */}
-            <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-4 mb-6 w-full">
+            {/* Presale Widget */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="w-full max-w-md mx-auto"
+            >
+              <PresaleWidget startDate={presaleStart} initialRaised={initialRaised} goal={goal} />
+            </motion.div>
+
+            {/* Stat Boxes below the widget */}
+            <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-4 mt-6 w-full">
               {[
                 { label: "Soft Cap", value: `$${(goal * 0.5).toLocaleString()}` },
                 { label: "Max Supply", value: "1,000,000 NT" },
@@ -93,16 +103,6 @@ export default function Hero({
                 </motion.div>
               ))}
             </div>
-
-            {/* Presale Widget */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="w-full max-w-md mx-auto"
-            >
-              <PresaleWidget startDate={presaleStart} initialRaised={initialRaised} goal={goal} />
-            </motion.div>
           </div>
         </div>
       </div>
@@ -159,11 +159,11 @@ function PresaleWidget({ startDate, initialRaised = 0, goal = 50000 }) {
   const percent = Math.min(100, Math.floor((raised / goal) * 100));
 
   return (
-    <div className="rounded-2xl p-5 bg-gradient-to-tr from-indigo-100/70 via-pink-50/50 to-white/20 backdrop-blur border mt-2 border-white/20 shadow-2xl">
+    <div className="rounded-2xl p-5 bg-gradient-to-tr from-indigo-100/70 via-pink-50/50 to-white/20 backdrop-blur border border-white/20 shadow-2xl">
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="text-xs font-semibold text-gray-500">Presale</div>
-          <div className="text-2xl font-bold tracking-tight text-gray-800">{`$${raised.toLocaleString()}`}</div>
+          <div className="text-2xl font-bold tracking-tight text-gray-800">${raised.toLocaleString()}</div>
           <div className="text-sm text-gray-600">raised of ${goal.toLocaleString()}</div>
         </div>
         <div className="text-right">
@@ -184,7 +184,7 @@ function PresaleWidget({ startDate, initialRaised = 0, goal = 50000 }) {
         </div>
         <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
           <div>{percent}%</div>
-          <div>{`${raised.toLocaleString()} / ${goal.toLocaleString()}`}</div>
+          <div>${raised.toLocaleString()} / ${goal.toLocaleString()}</div>
         </div>
       </div>
 
@@ -194,7 +194,7 @@ function PresaleWidget({ startDate, initialRaised = 0, goal = 50000 }) {
           <div key={t.name} className="flex items-center justify-between p-2 rounded-lg hover:bg-white/10 transition-colors duration-200">
             <div className="text-sm">
               <div className="font-medium text-gray-700">{t.name}</div>
-              <div className="text-xs text-gray-500">{`$${t.price.toFixed(3)} per NT`}</div>
+              <div className="text-xs text-gray-500">${t.price.toFixed(3)} per NT</div>
             </div>
             <div className="text-sm font-semibold text-gray-800">{t.cap.toLocaleString()}</div>
           </div>

@@ -8,8 +8,8 @@ import { IconBrandTwitter, IconBrandLinkedin, IconBrandGithub } from '@tabler/ic
 const teamMembers = [
   { photo: '/team/member1.webp', name: 'Alice Johnson', role: 'Founder & CEO', socials: { twitter: '#', linkedin: '#', github: '#' } },
   { photo: '/team/member2.webp', name: 'Bob Smith', role: 'Lead Developer', socials: { twitter: '#', linkedin: '#', github: '#' } },
-  { photo: '/team/member3.webp', name: 'Clara Lee', role: 'Blockchain Architect', socials: { twitter: '#', linkedin: '#', github: '#' } },
-  { photo: '/team/member4.webp', name: 'David Kim', role: 'Marketing Head', socials: { twitter: '#', linkedin: '#', github: '#' } },
+  { photo: '/team/member3.webp', name: 'David Kim', role: 'Marketing Head', socials: { twitter: '#', linkedin: '#', github: '#' } },
+   { photo: '/team/member4.webp', name: 'Clara Lee', role: 'Blockchain Architect', socials: { twitter: '#', linkedin: '#', github: '#' } },
 ];
 
 export default function TeamSection() {
