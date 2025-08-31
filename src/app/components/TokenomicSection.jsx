@@ -40,7 +40,10 @@ export default function TokenomicSection() {
   return (
     <section
       id="tokenomics"
-      className="relative w-full py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-indigo-50 via-white to-pink-50 overflow-hidden"
+      className="relative w-full py-16 px-4 sm:px-6 lg:px-8 
+                 bg-gradient-to-br from-indigo-100 via-white to-pink-100 
+                 dark:from-indigo-950 dark:via-gray-900 dark:to-pink-950
+                 overflow-hidden"
     >
       {/* Floating gradient circles like Hero */}
       <motion.div
@@ -56,7 +59,9 @@ export default function TokenomicSection() {
 
       {/* ✅ MATCH HeroSection width */}
       <div className="max-w-7xl mx-auto relative z-10">
-        <h2 className="text-3xl font-extrabold text-center mb-12 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-pink-500 to-pink-600">
+        <h2 className="text-3xl font-extrabold text-center mb-12 
+                       text-transparent bg-clip-text 
+                       bg-gradient-to-r from-indigo-600 via-pink-500 to-pink-600">
           Tokenomics
         </h2>
 
@@ -71,20 +76,30 @@ export default function TokenomicSection() {
                   fill={arc.color}
                   onMouseEnter={() => setHoveredIndex(i)}
                   onMouseLeave={() => setHoveredIndex(null)}
-                  className={`transition-all duration-300 ${
-                    hoveredIndex === i
-                      ? 'scale-105 filter drop-shadow-[0_0_12px] drop-shadow-[color:var(--tw-shadow-color)]'
-                      : ''
-                  }`}
-                  style={{ '--tw-shadow-color': arc.color }}
+                  className="transition-all duration-300 cursor-pointer"
+                  style={{
+                    transform: hoveredIndex === i ? "scale(1.05)" : "scale(1)",
+                    filter: hoveredIndex === i ? `drop-shadow(0 0 12px ${arc.color})` : "none",
+                    transformOrigin: "center center",
+                  }}
                 />
               ))}
-              <circle cx="0" cy="0" r="0.5" fill="currentColor" className="text-white" />
+              <circle
+                cx="0"
+                cy="0"
+                r="0.5"
+                fill="currentColor"
+                className="text-white pointer-events-none"
+              />
             </svg>
 
             {/* Tooltip */}
             {hoveredIndex !== null && (
-              <div className="absolute -translate-x-1/2 -translate-y-full left-1/2 top-1/2 bg-white/20 backdrop-blur-lg text-gray-900 text-xs px-2 py-1 rounded-lg shadow-lg pointer-events-none">
+              <div className="absolute -translate-x-1/2 -translate-y-3/4 
+                              left-1/2 top-1/2 
+                              bg-white/80 dark:bg-gray-800/90 
+                              backdrop-blur-lg text-gray-900 dark:text-gray-100 
+                              text-xs px-2 py-1 rounded-lg shadow-lg pointer-events-none">
                 {data[hoveredIndex].label}: {data[hoveredIndex].value} (
                 {((data[hoveredIndex].value / total) * 100).toFixed(1)}%)
               </div>
@@ -96,15 +111,24 @@ export default function TokenomicSection() {
             {data.map((d, i) => (
               <div
                 key={d.label}
-                className="flex items-center justify-between cursor-pointer p-2 rounded-xl bg-white/10 backdrop-blur border border-white/20 hover:scale-105 transition-transform duration-200"
+                className="flex items-center justify-between cursor-pointer 
+                           p-2 rounded-xl 
+                           bg-white/20 dark:bg-gray-800/40 
+                           backdrop-blur border border-white/20 dark:border-gray-700 
+                           hover:scale-105 transition-transform duration-200"
                 onMouseEnter={() => setHoveredIndex(i)}
                 onMouseLeave={() => setHoveredIndex(null)}
               >
                 <div className="flex items-center gap-2">
-                  <span className="w-4 h-4 rounded-full" style={{ backgroundColor: d.color }}></span>
-                  <span className="text-sm font-medium text-gray-800">{d.label}</span>
+                  <span
+                    className="w-4 h-4 rounded-full"
+                    style={{ backgroundColor: d.color }}
+                  ></span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    {d.label}
+                  </span>
                 </div>
-                <span className="text-sm font-semibold text-gray-900">
+                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                   {((d.value / total) * 100).toFixed(1)}%
                 </span>
               </div>
