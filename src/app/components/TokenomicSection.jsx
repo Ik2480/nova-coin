@@ -1,21 +1,60 @@
 'use client';
 import React, { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useAnimation, useInView } from 'framer-motion';
+
+function AnimatedNumber({ value, duration = 2, prefix = "", suffix = "" }) {
+  const controls = useAnimation();
+  const [display, setDisplay] = useState(0);
+  const ref = React.useRef(null);
+  const isInView = useInView(ref, { once: true });
+
+  React.useEffect(() => {
+    if (isInView) {
+      controls.start({
+        val: value,
+        transition: { duration, ease: "easeOut" },
+      });
+    }
+  }, [isInView, value, controls, duration]);
+
+  return (
+    <motion.span
+      ref={ref}
+      animate={controls}
+      initial={{ val: 0 }}
+      onUpdate={(latest) => setDisplay(latest.val)}
+    >
+      {prefix}{Math.round(display).toLocaleString()}{suffix}
+    </motion.span>
+  );
+}
 
 export default function TokenomicSection() {
-  const data = [
-    { label: "Team", value: 20, color: "#6366F1" },
-    { label: "Liquidity", value: 30, color: "#EC4899" },
-    { label: "Marketing", value: 10, color: "#FBBF24" },
-    { label: "Presale", value: 40, color: "#22D3EE" },
+  // ---------- Token Info ----------
+  const token = {
+    name: "Nova Coin",
+    symbol: "NVC",
+    totalSupply: 1000000000, // 1B tokens
+    taxBuy: 2,
+    taxSell: 3,
+  };
+
+  // ---------- Distribution ----------
+  const distribution = [
+    { label: "Team", value: 200000000, color: "#6366F1" },       // 20%
+    { label: "Liquidity", value: 300000000, color: "#EC4899" },  // 30%
+    { label: "Marketing", value: 100000000, color: "#FBBF24" },  // 10%
+    { label: "Presale", value: 400000000, color: "#22D3EE" },    // 40%
   ];
 
-  const total = useMemo(() => data.reduce((sum, d) => sum + d.value, 0), [data]);
+  // ---------- helpers ----------
   const [hoveredIndex, setHoveredIndex] = useState(null);
+  const total = token.totalSupply;
 
+  // compute arcs for donut chart
   const arcs = useMemo(() => {
     let cumulative = 0;
-    return data.map((d) => {
+    return distribution.map((d) => {
       const startAngle = (cumulative / total) * 2 * Math.PI;
       cumulative += d.value;
       const endAngle = (cumulative / total) * 2 * Math.PI;
@@ -33,38 +72,65 @@ export default function TokenomicSection() {
         L 0 0
         Z
       `;
+
       return { ...d, path };
     });
-  }, [data, total]);
+  }, [distribution, total]);
 
   return (
     <section
       id="tokenomics"
-      className="relative w-full py-16 px-4 sm:px-6 lg:px-8 
-                 bg-gradient-to-br from-indigo-100 via-white to-pink-100 
-                 dark:from-indigo-950 dark:via-gray-900 dark:to-pink-950
-                 overflow-hidden"
+      className="relative w-full py-20 px-4 sm:px-6 lg:px-8 
+      bg-gradient-to-b from-white via-indigo-50/50 to-pink-50/50 overflow-hidden"
     >
-      {/* Floating gradient circles like Hero */}
+      {/* Floating continuation orbs (same vibe as Hero) */}
       <motion.div
-        animate={{ x: [0, 15, -15, 0], y: [0, -10, 10, 0] }}
-        transition={{ repeat: Infinity, duration: 25, ease: 'easeInOut' }}
-        className="absolute w-36 h-36 bg-indigo-400/20 rounded-full top-10 left-10 blur-3xl pointer-events-none"
+        animate={{ x: [0, 20, -20, 0], y: [0, -15, 15, 0] }}
+        transition={{ repeat: Infinity, duration: 35, ease: 'easeInOut' }}
+        className="absolute w-80 h-80 bg-indigo-400/15 rounded-full -top-20 -left-20 blur-3xl pointer-events-none"
       />
       <motion.div
-        animate={{ x: [0, -10, 10, 0], y: [0, 5, -5, 0] }}
-        transition={{ repeat: Infinity, duration: 30, ease: 'easeInOut' }}
-        className="absolute w-48 h-48 bg-pink-400/20 rounded-full bottom-20 right-0 blur-3xl pointer-events-none"
+        animate={{ x: [0, -15, 15, 0], y: [0, 10, -10, 0] }}
+        transition={{ repeat: Infinity, duration: 40, ease: 'easeInOut' }}
+        className="absolute w-96 h-96 bg-pink-400/15 rounded-full bottom-0 right-0 blur-3xl pointer-events-none"
+      />
+      <motion.div
+        animate={{ x: [0, 10, -10, 0], y: [0, 5, -5, 0] }}
+        transition={{ repeat: Infinity, duration: 50, ease: 'easeInOut' }}
+        className="absolute w-72 h-72 bg-cyan-400/10 rounded-full top-1/3 left-1/2 -translate-x-1/2 blur-3xl pointer-events-none"
       />
 
-      {/* ✅ MATCH HeroSection width */}
       <div className="max-w-7xl mx-auto relative z-10">
-        <h2 className="text-3xl font-extrabold text-center mb-12 
-                       text-transparent bg-clip-text 
-                       bg-gradient-to-r from-indigo-600 via-pink-500 to-pink-600">
+        <h2 className="text-3xl font-extrabold text-center mb-12 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-pink-500 to-pink-600">
           Tokenomics
         </h2>
 
+        {/* Token Info */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center mb-10">
+          <div className="p-4 bg-white/30 backdrop-blur rounded-xl border border-white/40">
+            <p className="text-gray-700 text-sm">Name</p>
+            <p className="font-bold">{token.name}</p>
+          </div>
+          <div className="p-4 bg-white/30 backdrop-blur rounded-xl border border-white/40">
+            <p className="text-gray-700 text-sm">Symbol</p>
+            <p className="font-bold">{token.symbol}</p>
+          </div>
+          <div className="p-4 bg-white/30 backdrop-blur rounded-xl border border-white/40">
+            <p className="text-gray-700 text-sm">Total Supply</p>
+            <p className="font-bold">
+              <AnimatedNumber value={token.totalSupply} />
+            </p>
+          </div>
+          <div className="p-4 bg-white/30 backdrop-blur rounded-xl border border-white/40">
+            <p className="text-gray-700 text-sm">Taxes</p>
+            <p className="font-bold">
+              Buy <AnimatedNumber value={token.taxBuy} suffix="%" /> / 
+              Sell <AnimatedNumber value={token.taxSell} suffix="%" />
+            </p>
+          </div>
+        </div>
+
+        {/* Distribution & Pie */}
         <div className="flex flex-col md:flex-row items-center justify-center gap-8">
           {/* Donut Chart */}
           <div className="relative w-64 h-64 md:w-72 md:h-72">
@@ -76,60 +142,46 @@ export default function TokenomicSection() {
                   fill={arc.color}
                   onMouseEnter={() => setHoveredIndex(i)}
                   onMouseLeave={() => setHoveredIndex(null)}
-                  className="transition-all duration-300 cursor-pointer"
-                  style={{
-                    transform: hoveredIndex === i ? "scale(1.05)" : "scale(1)",
-                    filter: hoveredIndex === i ? `drop-shadow(0 0 12px ${arc.color})` : "none",
-                    transformOrigin: "center center",
-                  }}
+                  className={`transition-all duration-300 ${
+                    hoveredIndex === i
+                      ? 'scale-105 filter drop-shadow-[0_0_12px]'
+                      : ''
+                  }`}
                 />
               ))}
-              <circle
-                cx="0"
-                cy="0"
-                r="0.5"
-                fill="currentColor"
-                className="text-white pointer-events-none"
-              />
+              <circle cx="0" cy="0" r="0.5" fill="white" />
             </svg>
 
             {/* Tooltip */}
             {hoveredIndex !== null && (
-              <div className="absolute -translate-x-1/2 -translate-y-3/4 
-                              left-1/2 top-1/2 
-                              bg-white/80 dark:bg-gray-800/90 
-                              backdrop-blur-lg text-gray-900 dark:text-gray-100 
-                              text-xs px-2 py-1 rounded-lg shadow-lg pointer-events-none">
-                {data[hoveredIndex].label}: {data[hoveredIndex].value} (
-                {((data[hoveredIndex].value / total) * 100).toFixed(1)}%)
+              <div className="absolute -translate-x-1/2 -translate-y-full left-1/2 top-1/2 
+              bg-white/80 backdrop-blur-lg text-gray-900 text-xs px-2 py-1 rounded-lg shadow-lg pointer-events-none">
+                {distribution[hoveredIndex].label}:{" "}
+                <AnimatedNumber value={distribution[hoveredIndex].value} /> (
+                <AnimatedNumber
+                  value={(distribution[hoveredIndex].value / total) * 100}
+                  suffix="%"
+                />)
               </div>
             )}
           </div>
 
           {/* Legend */}
           <div className="flex flex-col gap-3 w-full max-w-xs">
-            {data.map((d, i) => (
+            {distribution.map((d, i) => (
               <div
                 key={d.label}
-                className="flex items-center justify-between cursor-pointer 
-                           p-2 rounded-xl 
-                           bg-white/20 dark:bg-gray-800/40 
-                           backdrop-blur border border-white/20 dark:border-gray-700 
-                           hover:scale-105 transition-transform duration-200"
+                className="flex items-center justify-between cursor-pointer p-2 rounded-xl 
+                bg-white/20 backdrop-blur border border-white/30 hover:scale-105 transition-transform duration-200"
                 onMouseEnter={() => setHoveredIndex(i)}
                 onMouseLeave={() => setHoveredIndex(null)}
               >
                 <div className="flex items-center gap-2">
-                  <span
-                    className="w-4 h-4 rounded-full"
-                    style={{ backgroundColor: d.color }}
-                  ></span>
-                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                    {d.label}
-                  </span>
+                  <span className="w-4 h-4 rounded-full" style={{ backgroundColor: d.color }}></span>
+                  <span className="text-sm font-medium text-gray-800">{d.label}</span>
                 </div>
-                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                  {((d.value / total) * 100).toFixed(1)}%
+                <span className="text-sm font-semibold text-gray-900">
+                  <AnimatedNumber value={(d.value / total) * 100} suffix="%" />
                 </span>
               </div>
             ))}
