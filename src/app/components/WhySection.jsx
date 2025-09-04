@@ -1,88 +1,70 @@
 'use client';
 
+import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { IconRocket, IconLock, IconNetwork, IconCoin } from '@tabler/icons-react';
 
-const cardData = [
-  { icon: IconRocket, title: 'Scalable & Efficient', description: 'Built on a high-throughput blockchain, our platform ensures lightning-fast transactions with minimal gas fees.' },
-  { icon: IconLock, title: 'Unmatched Security', description: 'Audited smart contracts and cutting-edge encryption protocols protect your assets and data at all times.' },
-  { icon: IconNetwork, title: 'True Decentralization', description: 'A community-governed DAO and a distributed network guarantee a future free from central authority.' },
-  { icon: IconCoin, title: 'Built-in Utility', description: 'Beyond a simple token, we offer staking, governance, and exclusive access to our ecosystem features.' },
+const features = [
+  { icon: IconRocket, title: 'Scalable & Efficient', description: 'Built on a high-throughput blockchain, lightning-fast transactions with minimal gas fees.' },
+  { icon: IconLock, title: 'Unmatched Security', description: 'Audited smart contracts and encryption protocols to protect your assets and data.' },
+  { icon: IconNetwork, title: 'True Decentralization', description: 'Community-governed DAO ensures a future free from central authority.' },
+  { icon: IconCoin, title: 'Built-in Utility', description: 'Staking, governance, and exclusive access to ecosystem features.' },
 ];
 
-const glitchVariants = {
-  initial: { x: 0, y: 0 },
-  hover: {
-    x: [0, 2, -2, 2, -2, 0],
-    y: [0, 2, -2, 2, -2, 0],
-    transition: { duration: 0.5, ease: 'linear', repeat: Infinity, repeatType: 'reverse' },
-  },
-};
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 40, scale: 0.95 },
-  show: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 120 } },
-};
-
 export default function WhySection() {
-  return (
-    <section
-      id="why"
-      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 
-                 bg-gradient-to-br from-indigo-50 via-white to-pink-50 
-                 relative overflow-hidden"
-    >
-      {/* Floating gradient circles */}
-      <motion.div
-        animate={{ x: [0, 15, -15, 0], y: [0, -10, 10, 0] }}
-        transition={{ repeat: Infinity, duration: 25, ease: 'easeInOut' }}
-        className="absolute w-28 h-28 bg-indigo-400/20 rounded-full top-10 left-10 blur-3xl pointer-events-none"
-      />
-      <motion.div
-        animate={{ x: [0, -10, 10, 0], y: [0, 5, -5, 0] }}
-        transition={{ repeat: Infinity, duration: 30, ease: 'easeInOut' }}
-        className="absolute w-36 h-36 bg-pink-400/20 rounded-full bottom-20 right-0 blur-3xl pointer-events-none"
-      />
+  const headingRef = useRef(null);
 
-      {/* Section Header */}
-      <div className="text-center mb-12 relative z-10">
-        <h2 className="text-2xl md:text-4xl font-bold font-orbitron leading-tight 
-                       text-transparent bg-clip-text 
-                       bg-gradient-to-r from-indigo-600 via-pink-500 to-pink-600">
+  return (
+    <section className="relative overflow-hidden py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-950 via-black to-gray-900">
+      {/* Header */}
+      <div ref={headingRef} className="text-center mb-12 relative z-20">
+        <h2 className="text-2xl md:text-4xl font-bold font-orbitron leading-tight text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-emerald-400 to-green-500">
           Why Choose Us?
         </h2>
-        <p className="mt-3 text-base md:text-lg text-gray-800 max-w-2xl mx-auto">
-          We’re not just another presale. We’re building the future of decentralized finance, one block at a time.
-        </p>
       </div>
 
-      {/* Cards in grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
-        {cardData.map((card, index) => (
+      {/* Desktop Features with horizontal line */}
+      <div className="hidden md:flex relative z-10 max-w-5xl mx-auto justify-between items-center h-[220px]">
+        {/* Horizontal line above numbers */}
+        <div className="absolute top-1/3 left-0 w-full h-1 bg-gradient-to-r from-green-400 via-emerald-400 to-green-500 z-0" />
+
+        {features.map((f, i) => (
           <motion.div
-            key={index}
-            className="relative p-5 rounded-xl bg-white/70 backdrop-blur-md 
-                       border border-white/30 shadow-md 
-                       hover:shadow-xl hover:scale-105 
-                       transition-transform duration-300 cursor-pointer"
-            variants={cardVariants}
-            initial="hidden"
-            whileInView="show"
+            key={i}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: i * 0.3 }}
             viewport={{ once: true }}
+            className={`relative flex flex-col items-center text-center max-w-[220px] z-10 ${i === 0 || i === 1 ? 'mt-4' : ''}`}
           >
-            <motion.div
-              className="absolute inset-0 bg-transparent rounded-xl pointer-events-none"
-              variants={glitchVariants}
-              initial="initial"
-              whileHover="hover"
-            />
-            <div className="relative z-10 flex flex-col items-start space-y-3">
-              <div className="p-2.5 rounded-full bg-indigo-500/20 text-indigo-700 border border-indigo-500/40">
-                <card.icon size={28} stroke={1.5} />
+            <div className="relative mb-2">
+              <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }} className="absolute inset-0 w-14 h-14 bg-green-400/30 blur-2xl rounded-full" />
+              <div className="relative w-14 h-14 rounded-full bg-black/80 border border-green-400/60 flex items-center justify-center text-green-400 font-bold shadow-[0_0_20px_#22c55e]">
+                {i + 1}
               </div>
-              <h3 className="text-lg font-semibold font-inter text-gray-900">{card.title}</h3>
-              <p className="text-sm text-gray-700 leading-relaxed">{card.description}</p>
             </div>
+            <h3 className="text-lg font-semibold text-white">{f.title}</h3>
+            <p className="text-sm text-gray-300 mt-1 leading-snug">{f.description}</p>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Mobile Slider */}
+      <div className="md:hidden relative z-10 overflow-x-auto snap-x snap-mandatory flex gap-6 pb-4 -mx-4 px-4 mt-10">
+        {features.map((f, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, x: 40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: i * 0.2 }}
+            viewport={{ once: true }}
+            className="min-w-[80%] snap-center flex flex-col items-center text-center bg-black/40 backdrop-blur-md rounded-2xl p-6 border border-green-400/50 shadow-[0_0_20px_#22c55e]/30"
+          >
+            <div className="relative w-14 h-14 rounded-full bg-black/80 border border-green-400/60 flex items-center justify-center text-green-400 font-bold shadow-[0_0_15px_#22c55e]">
+              {i + 1}
+            </div>
+            <h3 className="mt-4 text-lg font-semibold text-white">{f.title}</h3>
+            <p className="mt-2 text-sm text-gray-300">{f.description}</p>
           </motion.div>
         ))}
       </div>

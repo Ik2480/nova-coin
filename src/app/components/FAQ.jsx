@@ -35,22 +35,40 @@ export default function FAQAccordion() {
   return (
     <section
       id="faq"
-      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16
-                 bg-gradient-to-br from-indigo-50 via-white to-pink-50
-                 relative overflow-hidden"
+      className="relative py-20 px-6 lg:px-12 overflow-hidden 
+                 bg-gradient-to-br from-gray-950 via-black to-gray-900"
     >
-      <h2 className="text-3xl font-extrabold text-center
+      {/* 🔹 Grid Background */}
+      <div className="absolute inset-0 
+                      bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] 
+                      bg-[size:40px_40px] pointer-events-none" />
+
+      {/* Floating neon orbs */}
+      <motion.div
+        animate={{ x: [0, 20, -20, 0], y: [0, -15, 15, 0] }}
+        transition={{ repeat: Infinity, duration: 25, ease: 'easeInOut' }}
+        className="absolute w-36 h-36 bg-emerald-500/20 rounded-full top-10 left-10 blur-3xl pointer-events-none"
+      />
+      <motion.div
+        animate={{ x: [0, -15, 15, 0], y: [0, 10, -10, 0] }}
+        transition={{ repeat: Infinity, duration: 30, ease: 'easeInOut' }}
+        className="absolute w-48 h-48 bg-green-400/20 rounded-full bottom-20 right-0 blur-3xl pointer-events-none"
+      />
+
+      {/* Section Heading */}
+      <h2 className="text-3xl md:text-5xl font-extrabold text-center
                      text-transparent bg-clip-text
-                     bg-gradient-to-r from-indigo-600 via-pink-500 to-pink-600
-                     mb-12">
+                     bg-gradient-to-r from-green-400 via-emerald-400 to-green-500
+                     mb-12 relative z-10">
         Frequently Asked Questions
       </h2>
 
-      <div className="flex flex-col gap-4">
+      {/* FAQ List */}
+      <div className="flex flex-col gap-4 relative z-10 max-w-3xl mx-auto">
         {faqData.map((item, index) => (
           <motion.div
             key={index}
-            className="bg-white/20 backdrop-blur border border-white/30
+            className="bg-black/40 backdrop-blur border border-green-400/40
                        rounded-2xl shadow-lg cursor-pointer
                        transition-transform hover:scale-105 duration-300"
             onClick={() => toggleIndex(index)}
@@ -58,10 +76,10 @@ export default function FAQAccordion() {
           >
             {/* Question */}
             <div className="px-6 py-4 flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+              <h3 className="text-lg font-semibold text-gray-100">
                 {item.question}
               </h3>
-              <span className="text-gray-600 dark:text-gray-300">
+              <span className="text-green-400 text-xl font-bold">
                 {openIndex === index ? '−' : '+'}
               </span>
             </div>
@@ -74,7 +92,7 @@ export default function FAQAccordion() {
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="px-6 pb-4 text-gray-700 dark:text-gray-200 text-sm"
+                  className="px-6 pb-4 text-gray-300 text-sm"
                 >
                   {item.answer}
                 </motion.div>

@@ -9,53 +9,93 @@ const roadmapItems = [
   { title: "Phase 4", date: "Q4 2025", description: "Global marketing campaign and ecosystem expansion.", icon: "🌐" },
 ];
 
-// Motion variants for staggered cards
+// Motion variants
 const containerVariants = { hidden: {}, show: { transition: { staggerChildren: 0.2 } } };
-const cardVariants = { hidden: { opacity: 0, y: 50, scale: 0.95 }, show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 100 } } };
+const cardVariants = { 
+  hidden: { opacity: 0, y: 50, scale: 0.95 }, 
+  show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 100 } } 
+};
 
-const RoadmapCard = ({ item }) => (
-  <motion.div
-    className="flex flex-col items-center justify-start min-w-[220px] p-6 bg-white/20 backdrop-blur-lg border border-white/30 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-transform duration-300 cursor-pointer"
-    variants={cardVariants}
-  >
-    <div className="text-3xl mb-2">{item.icon}</div>
-    <h3 className="text-lg font-semibold mb-1 text-gray-900/90">{item.title}</h3>
-    <span className="text-sm text-gray-700/80 mb-2">{item.date}</span>
-    <p className="text-sm text-gray-700/80 text-center">{item.description}</p>
-  </motion.div>
-);
+// Neon color cycle
+const neonColors = ["#00FF7F", "#00FFFF", "#FF00FF"];
+
+const RoadmapCard = ({ item, index }) => {
+  const color = neonColors[index % neonColors.length];
+
+  return (
+    <motion.div
+      className="flex flex-col justify-between items-center text-center
+                 w-56 min-h-[220px] p-4 
+                 bg-black/50 backdrop-blur-md 
+                 border rounded-2xl shadow-lg 
+                 transition-transform duration-300 cursor-pointer shrink-0"
+      variants={cardVariants}
+      whileHover={{ scale: 1.05 }}
+      style={{ borderColor: color, boxShadow: `0 0 8px ${color}` }}
+    >
+      <div>
+        <div className="text-2xl mb-2">{item.icon}</div>
+        <h3 className="text-base font-semibold mb-1 text-white">{item.title}</h3>
+        <span className="text-xs text-gray-400 mb-2 block">{item.date}</span>
+        <p className="text-sm text-gray-300">{item.description}</p>
+      </div>
+    </motion.div>
+  );
+};
 
 const Roadmap = () => {
   return (
     <section
       id="roadmap"
-      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 bg-gradient-to-br from-indigo-50 via-white to-pink-50 relative overflow-hidden"
+      className="relative w-full min-h-screen overflow-hidden bg-black flex flex-col justify-center items-center py-4"
     >
-      {/* Floating gradient circles */}
+      {/* Neon Grid */}
       <motion.div
-        animate={{ x: [0, 15, -15, 0], y: [0, -10, 10, 0] }}
-        transition={{ repeat: Infinity, duration: 25, ease: "easeInOut" }}
-        className="absolute w-36 h-36 bg-indigo-400/20 rounded-full top-10 left-10 blur-3xl pointer-events-none"
-      />
-      <motion.div
-        animate={{ x: [0, -10, 10, 0], y: [0, 5, -5, 0] }}
-        transition={{ repeat: Infinity, duration: 30, ease: "easeInOut" }}
-        className="absolute w-48 h-48 bg-pink-400/20 rounded-full bottom-20 right-0 blur-3xl pointer-events-none"
-      />
+        className="absolute inset-0 pointer-events-none"
+        animate={{ x: [0, 5, -5, 0], y: [0, 5, -5, 0] }}
+        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+      >
+        {Array.from({ length: 20 }).map((_, i) => (
+          <div key={i}>
+            <div className="absolute inset-y-0 border-r border-cyan-400/20" style={{ left: `${(i / 20) * 100}%` }} />
+            <div className="absolute inset-x-0 border-b border-fuchsia-400/20" style={{ top: `${(i / 20) * 100}%` }} />
+          </div>
+        ))}
+      </motion.div>
+
+      {/* Sparks */}
+      {Array.from({ length: 25 }).map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-1 h-1 rounded-full pointer-events-none"
+          style={{
+            top: `${Math.random() * 100}%`,
+            left: `${Math.random() * 100}%`,
+            backgroundColor: "#00FFFF",
+            boxShadow: "0 0 10px #00FFFF",
+          }}
+          animate={{ opacity: [0, 1, 0] }}
+          transition={{ duration: 3, repeat: Infinity, delay: Math.random() * 2 }}
+        />
+      ))}
 
       {/* Section Header */}
-      <h2 className="text-3xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-pink-500 to-pink-600 mb-12">
+      <h2
+        className="text-3xl md:text-5xl font-extrabold text-center mb-14 bg-clip-text text-transparent"
+        style={{ backgroundImage: "linear-gradient(to right, #00FF7F, #00FFFF, #FF00FF)" }}
+      >
         Roadmap
       </h2>
 
+      {/* Roadmap Cards */}
       <motion.div
-        className="flex flex-wrap justify-center gap-8"
+        className="flex justify-start gap-6 relative z-10 overflow-x-auto no-scrollbar px-6"
         variants={containerVariants}
         initial="hidden"
         animate="show"
       >
         {roadmapItems.map((item, index) => (
-          <RoadmapCard key={index} item={item} />
+          <RoadmapCard key={index} item={item} index={index} />
         ))}
       </motion.div>
     </section>

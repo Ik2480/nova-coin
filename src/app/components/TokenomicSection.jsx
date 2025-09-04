@@ -29,29 +29,27 @@ function AnimatedNumber({ value, duration = 2, prefix = "", suffix = "" }) {
   );
 }
 
+const randomPosition = (max) => Math.random() * max;
+
 export default function TokenomicSection() {
-  // ---------- Token Info ----------
   const token = {
     name: "Nova Coin",
     symbol: "NVC",
-    totalSupply: 1000000000, // 1B tokens
+    totalSupply: 1000000000,
     taxBuy: 2,
     taxSell: 3,
   };
 
-  // ---------- Distribution ----------
   const distribution = [
-    { label: "Team", value: 200000000, color: "#6366F1" },       // 20%
-    { label: "Liquidity", value: 300000000, color: "#EC4899" },  // 30%
-    { label: "Marketing", value: 100000000, color: "#FBBF24" },  // 10%
-    { label: "Presale", value: 400000000, color: "#22D3EE" },    // 40%
+    { label: "Team", value: 200000000, color: "#6366F1" },
+    { label: "Liquidity", value: 300000000, color: "#EC4899" },
+    { label: "Marketing", value: 100000000, color: "#FBBF24" },
+    { label: "Presale", value: 400000000, color: "#22D3EE" },
   ];
 
-  // ---------- helpers ----------
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const total = token.totalSupply;
 
-  // compute arcs for donut chart
   const arcs = useMemo(() => {
     let cumulative = 0;
     return distribution.map((d) => {
@@ -72,118 +70,128 @@ export default function TokenomicSection() {
         L 0 0
         Z
       `;
-
       return { ...d, path };
     });
   }, [distribution, total]);
 
+  // Sparks like Hero
+  const sparks = Array.from({ length: 30 }, (_, i) => ({
+    id: i,
+    x: randomPosition(100),
+    y: randomPosition(100),
+    delay: Math.random() * 2,
+  }));
+
   return (
     <section
       id="tokenomics"
-      className="relative w-full py-20 px-4 sm:px-6 lg:px-8 
-      bg-gradient-to-b from-white via-indigo-50/50 to-pink-50/50 overflow-hidden"
+      className="relative w-full py-12 px-4 sm:px-6 lg:px-8 bg-black overflow-hidden"
     >
-      {/* Floating continuation orbs (same vibe as Hero) */}
+      {/* Neon Grid Background */}
       <motion.div
-        animate={{ x: [0, 20, -20, 0], y: [0, -15, 15, 0] }}
-        transition={{ repeat: Infinity, duration: 35, ease: 'easeInOut' }}
-        className="absolute w-80 h-80 bg-indigo-400/15 rounded-full -top-20 -left-20 blur-3xl pointer-events-none"
-      />
-      <motion.div
-        animate={{ x: [0, -15, 15, 0], y: [0, 10, -10, 0] }}
-        transition={{ repeat: Infinity, duration: 40, ease: 'easeInOut' }}
-        className="absolute w-96 h-96 bg-pink-400/15 rounded-full bottom-0 right-0 blur-3xl pointer-events-none"
-      />
-      <motion.div
-        animate={{ x: [0, 10, -10, 0], y: [0, 5, -5, 0] }}
-        transition={{ repeat: Infinity, duration: 50, ease: 'easeInOut' }}
-        className="absolute w-72 h-72 bg-cyan-400/10 rounded-full top-1/3 left-1/2 -translate-x-1/2 blur-3xl pointer-events-none"
-      />
+        className="absolute inset-0 pointer-events-none"
+        animate={{ x: [0, 5, -5, 0], y: [0, 5, -5, 0] }}
+        transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
+      >
+        {Array.from({ length: 20 }).map((_, i) => (
+          <React.Fragment key={i}>
+            <div
+              className="absolute inset-y-0 border-r border-cyan-400/20"
+              style={{ left: `${(i / 20) * 100}%` }}
+            />
+            <div
+              className="absolute inset-x-0 border-b border-fuchsia-400/20"
+              style={{ top: `${(i / 20) * 100}%` }}
+            />
+          </React.Fragment>
+        ))}
+      </motion.div>
+
+      {/* Sparks */}
+      {sparks.map((spark) => (
+        <motion.div
+          key={spark.id}
+          className="absolute w-1 h-1 rounded-full pointer-events-none"
+          style={{
+            top: `${spark.y}%`,
+            left: `${spark.x}%`,
+            backgroundColor: '#00FFFF',
+            boxShadow: '0 0 10px #00FFFF',
+          }}
+          animate={{ opacity: [0, 1, 0] }}
+          transition={{ duration: 3, repeat: Infinity, delay: spark.delay }}
+        />
+      ))}
 
       <div className="max-w-7xl mx-auto relative z-10">
-        <h2 className="text-3xl font-extrabold text-center mb-12 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-pink-500 to-pink-600">
+        <h2 className="text-4xl md:text-5xl font-extrabold text-center mb-12 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-pink-400 to-fuchsia-500">
           Tokenomics
         </h2>
 
-        {/* Token Info */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center mb-10">
-          <div className="p-4 bg-white/30 backdrop-blur rounded-xl border border-white/40">
-            <p className="text-gray-700 text-sm">Name</p>
-            <p className="font-bold">{token.name}</p>
-          </div>
-          <div className="p-4 bg-white/30 backdrop-blur rounded-xl border border-white/40">
-            <p className="text-gray-700 text-sm">Symbol</p>
-            <p className="font-bold">{token.symbol}</p>
-          </div>
-          <div className="p-4 bg-white/30 backdrop-blur rounded-xl border border-white/40">
-            <p className="text-gray-700 text-sm">Total Supply</p>
-            <p className="font-bold">
-              <AnimatedNumber value={token.totalSupply} />
-            </p>
-          </div>
-          <div className="p-4 bg-white/30 backdrop-blur rounded-xl border border-white/40">
-            <p className="text-gray-700 text-sm">Taxes</p>
-            <p className="font-bold">
-              Buy <AnimatedNumber value={token.taxBuy} suffix="%" /> / 
-              Sell <AnimatedNumber value={token.taxSell} suffix="%" />
-            </p>
-          </div>
-        </div>
+        {/* Main Flex Layout */}
+        <div className="flex flex-col lg:flex-row items-center justify-center gap-10">
+          
+          {/* Left – Donut Chart */}
+          <div className="flex-1 flex justify-center items-center">
+            <div className="relative w-52 h-52 md:w-64 md:h-64">
+              <svg viewBox="-1 -1 2 2" className="w-full h-full rotate-[-90deg]">
+                {arcs.map((arc, i) => (
+                  <path
+                    key={arc.label}
+                    d={arc.path}
+                    fill={arc.color}
+                    onMouseEnter={() => setHoveredIndex(i)}
+                    onMouseLeave={() => setHoveredIndex(null)}
+                    className={`transition-all duration-300 ${
+                      hoveredIndex === i
+                        ? 'scale-105 filter drop-shadow-[0_0_12px]'
+                        : ''
+                    }`}
+                  />
+                ))}
+                <circle cx="0" cy="0" r="0.5" fill="black" />
+              </svg>
 
-        {/* Distribution & Pie */}
-        <div className="flex flex-col md:flex-row items-center justify-center gap-8">
-          {/* Donut Chart */}
-          <div className="relative w-64 h-64 md:w-72 md:h-72">
-            <svg viewBox="-1 -1 2 2" className="w-full h-full rotate-[-90deg]">
-              {arcs.map((arc, i) => (
-                <path
-                  key={arc.label}
-                  d={arc.path}
-                  fill={arc.color}
-                  onMouseEnter={() => setHoveredIndex(i)}
-                  onMouseLeave={() => setHoveredIndex(null)}
-                  className={`transition-all duration-300 ${
-                    hoveredIndex === i
-                      ? 'scale-105 filter drop-shadow-[0_0_12px]'
-                      : ''
-                  }`}
-                />
-              ))}
-              <circle cx="0" cy="0" r="0.5" fill="white" />
-            </svg>
-
-            {/* Tooltip */}
-            {hoveredIndex !== null && (
-              <div className="absolute -translate-x-1/2 -translate-y-full left-1/2 top-1/2 
-              bg-white/80 backdrop-blur-lg text-gray-900 text-xs px-2 py-1 rounded-lg shadow-lg pointer-events-none">
-                {distribution[hoveredIndex].label}:{" "}
-                <AnimatedNumber value={distribution[hoveredIndex].value} /> (
-                <AnimatedNumber
-                  value={(distribution[hoveredIndex].value / total) * 100}
-                  suffix="%"
-                />)
-              </div>
-            )}
-          </div>
-
-          {/* Legend */}
-          <div className="flex flex-col gap-3 w-full max-w-xs">
-            {distribution.map((d, i) => (
-              <div
-                key={d.label}
-                className="flex items-center justify-between cursor-pointer p-2 rounded-xl 
-                bg-white/20 backdrop-blur border border-white/30 hover:scale-105 transition-transform duration-200"
-                onMouseEnter={() => setHoveredIndex(i)}
-                onMouseLeave={() => setHoveredIndex(null)}
-              >
-                <div className="flex items-center gap-2">
-                  <span className="w-4 h-4 rounded-full" style={{ backgroundColor: d.color }}></span>
-                  <span className="text-sm font-medium text-gray-800">{d.label}</span>
+              {/* Tooltip */}
+              {hoveredIndex !== null && (
+                <div className="absolute -translate-x-1/2 -translate-y-full left-1/2 top-1/2 
+                bg-black/80 backdrop-blur-lg text-white text-xs px-2 py-1 rounded-lg shadow-lg pointer-events-none">
+                  {distribution[hoveredIndex].label}:{" "}
+                  <AnimatedNumber value={distribution[hoveredIndex].value} /> (
+                  <AnimatedNumber
+                    value={(distribution[hoveredIndex].value / total) * 100}
+                    suffix="%"
+                  />)
                 </div>
-                <span className="text-sm font-semibold text-gray-900">
-                  <AnimatedNumber value={(d.value / total) * 100} suffix="%" />
+              )}
+            </div>
+          </div>
+
+          {/* Right – Token Info (Boxed with glowing underline) */}
+          <div className="flex-1 flex flex-col gap-4 w-full max-w-sm justify-center">
+            {[
+              { label: "Name", value: token.name },
+              { label: "Symbol", value: token.symbol },
+              { label: "Total Supply", value: <AnimatedNumber value={token.totalSupply} /> },
+              { label: "Taxes", value: <>Buy <AnimatedNumber value={token.taxBuy} suffix="%" /> / Sell <AnimatedNumber value={token.taxSell} suffix="%" /></> },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: i * 0.2 }}
+                viewport={{ once: true }}
+                className="relative flex justify-between items-center p-3 bg-black/30 rounded-xl border border-gray-700 group"
+              >
+                <span className="text-gray-300 text-sm font-normal">{item.label}:</span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-pink-400 to-fuchsia-500 
+                  font-extrabold text-lg relative">
+                  {item.value}
+                  {/* Glowing underline */}
+                  <span className="absolute left-0 bottom-0 w-full h-0.5 bg-gradient-to-r from-cyan-400 via-pink-400 to-fuchsia-500 
+                    opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm rounded"></span>
                 </span>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
